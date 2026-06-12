@@ -16,8 +16,7 @@ Here, the data is divided into three parts.
 | :--- | :--- | :--- |
 | `text` | `string` | The content of the post. |
 | `label` | `int` | The classification label. `0` indicates Human-Written Text (HWT), `1` indicates AI-Generated Text (AIGT). |
-| `community_id` | `string` | The domain of the Mastodon instance (e.g., `wug.fun`). Represents the community context. |
-| `original_id` | `string` | The unique identifier of the post on its source instance. |
+| `community_id` | `string` | The domain of the Mastodon instance. Represents the community context. |
 | `is_reply` | `boolean` | Indicates if the post is a reply to another user (`true`) or a standalone post (`false`). |
 | `language` | `string` | The language code of the post (e.g., `ja`, `en`). |
 | `generation_method` | `string` | The strategy used to generate the text (for AIGT). For HWT, this may be null or distinct. Strategies include `polish`, `complete`, and `3-iteration paraphrase`. |
