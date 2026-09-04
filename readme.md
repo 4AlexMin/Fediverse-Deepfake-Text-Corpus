@@ -161,3 +161,48 @@ The dataset is built from these Mastodon endpoints:
 **Notes**
 - The same instance may appear multiple times if different endpoints failed or retries were recorded.
 
+
+## 2.3 Instance-level statistics and distribution
+
+Top-20 Instances Statistics:
+
+| Instance | Posts | HWT | AIGT | HWT % | AIGT % |
+|---|---:|---:|---:|---:|---:|
+| mastodon.social | 198,827 | 109,075 | 89,752 | 54.86 | 45.14 |
+| pawoo.net | 153,632 | 77,763 | 75,869 | 50.62 | 49.38 |
+| mstdn.maud.io | 55,916 | 28,305 | 27,611 | 50.62 | 49.38 |
+| chaosphere.hostdon.jp | 48,292 | 24,172 | 24,120 | 50.05 | 49.95 |
+| imastodon.net | 44,370 | 22,305 | 22,065 | 50.27 | 49.73 |
+| mamot.fr | 38,991 | 20,513 | 18,478 | 52.61 | 47.39 |
+| rewa.mobi | 29,088 | 15,774 | 13,314 | 54.23 | 45.77 |
+| eletusk.club | 24,218 | 12,223 | 11,995 | 50.47 | 49.53 |
+| mstdn.guru | 23,338 | 11,725 | 11,613 | 50.24 | 49.76 |
+| pokemon.mastportal.info | 16,083 | 8,159 | 7,924 | 50.73 | 49.27 |
+| vocalodon.net | 16,005 | 8,054 | 7,951 | 50.32 | 49.68 |
+| framapiaf.org | 15,601 | 8,505 | 7,096 | 54.52 | 45.48 |
+| chaos.social | 14,726 | 7,939 | 6,787 | 53.91 | 46.09 |
+| handon.club | 14,234 | 7,288 | 6,946 | 51.20 | 48.80 |
+| unnerv.jp | 11,757 | 5,884 | 5,873 | 50.05 | 49.95 |
+| mental.social | 11,634 | 5,859 | 5,775 | 50.36 | 49.64 |
+| social.mikutter.hachune.net | 10,317 | 5,182 | 5,135 | 50.23 | 49.77 |
+| mastodon.art | 9,952 | 5,397 | 4,555 | 54.23 | 45.77 |
+| mstdn.nere9.help | 9,269 | 4,667 | 4,602 | 50.35 | 49.65 |
+| schleuss.online | 7,721 | 3,870 | 3,851 | 50.12 | 49.88 |
+| elekk.xyz | 7,425 | 3,884 | 3,541 | 52.31 | 47.69 |
+| mastodon.bida.im | 7,247 | 3,980 | 3,267 | 54.92 | 45.08 |
+| ffxiv-mastodon.com | 7,067 | 3,544 | 3,523 | 50.15 | 49.85 |
+| kancolle.social | 6,076 | 3,072 | 3,004 | 50.56 | 49.44 |
+| baraag.net | 5,843 | 3,203 | 2,640 | 54.82 | 45.18 |
+| odakyu.app | 5,798 | 2,935 | 2,863 | 50.62 | 49.38 |
+| friends.cafe | 5,727 | 2,892 | 2,835 | 50.50 | 49.50 |
+| ichiji.social | 5,685 | 2,870 | 2,815 | 50.48 | 49.52 |
+| jorts.horse | 5,075 | 2,837 | 2,238 | 55.90 | 44.10 |
+| gingadon.com | 4,920 | 2,478 | 2,442 | 50.37 | 49.63 |
+| mastodon.sk | 4,654 | 2,370 | 2,284 | 50.92 | 49.08 |
+
+
+### Post-volume distribution across instances
+
+![Post-volume distribution across instances](post_volume_distribution.png)
+
+*Figure: Distribution of post volumes across Mastodon instances. The x-axis is shown on a logarithmic scale.*
