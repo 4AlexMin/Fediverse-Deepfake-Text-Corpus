@@ -164,7 +164,7 @@ The dataset is built from these Mastodon endpoints:
 
 ## 2.3 Instance-level statistics and distribution
 
-Top-20 Instances Statistics:
+Top-30 Instances Statistics:
 
 | Instance | Posts | HWT | AIGT | HWT % | AIGT % |
 |---|---:|---:|---:|---:|---:|
