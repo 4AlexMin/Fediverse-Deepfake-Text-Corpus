@@ -1,208 +1,99 @@
-This dataset comprises a large-scale collection of social media posts from the Fediverse (specifically Mastodon), designed to benchmark AI-Generated Text (AIGT) detection. The corpus features a balanced composition of **Human-Written Text (HWT)** collected from the pre-LLM era and **AI-Generated Text (AIGT)** produced using state-of-the-art Large Language Models. This part corresponds to the file `corpus_*.jsonl`.  
+# Fediverse Deepfake-Text Corpus
 
-Unique to this corpus is the preservation of **community context**. Data is drawn from 263 distinct Mastodon instances, each representing a "community" with specific norms, topics, and moderation policies. This structure enables community-aware modeling and analysis of linguistic shifts across decentralized social networks. This part corresponds to the file `instance_metadata_*.json`.  
+This repository contains a large-scale deepfake-text corpus from the Fediverse. The
+corpus contains human-written text (HWT, label `0`) collected from pre-LLM
+Fediverse snapshots and AI-generated text (AIGT, label `1`) generated based on
+that HWT corpus.
 
-Here, the data is divided into three parts.
+## Corpus files
 
-# 1.Fediverse HWT & AIGT Corpus
+The corpus is provided as nine standalone JSON Lines shards:
 
-## 1.1 Dataset Structure
+| Files | Records |
+| --- | ---: |
+| `corpus/corpus_01.jsonl` through `corpus/corpus_09.jsonl` | 1,003,993 |
 
-`corpus_*.jsonl` is provided in `.jsonl` (JSON Lines) format. Each line represents a single post object.
+Each line represents one post object. Each shard is below 45,000,000 bytes and
+ends at a JSONL record boundary. The corpus contains 523,048 HWT records and
+480,945 AIGT records across 263 Mastodon communities.
 
-### Data Fields
+## Record schema
+
+Each line is one JSON object. The public corpus uses these fields:
 
 | Field | Type | Description |
-| :--- | :--- | :--- |
-| `text` | `string` | The content of the post. |
-| `label` | `int` | The classification label. `0` indicates Human-Written Text (HWT), `1` indicates AI-Generated Text (AIGT). |
-| `community_id` | `string` | The domain of the Mastodon instance. Represents the community context. |
-| `is_reply` | `boolean` | Indicates if the post is a reply to another user (`true`) or a standalone post (`false`). |
-| `language` | `string` | The language code of the post (e.g., `ja`, `en`). |
-| `generation_method` | `string` | The strategy used to generate the text (for AIGT). For HWT, this may be null or distinct. Strategies include `polish`, `complete`, and `3-iteration paraphrase`. |
-| `llm_model` | `string` | The target Large Language Model selected for generation. |
-| `response_model` | `string` | The actual model API that generated the response. |
+| --- | --- | --- |
+| `text` | string | Cleaned post text. |
+| `label` | integer | `0` for HWT and `1` for AIGT. |
+| `community_id` | string | Mastodon instance/community domain. |
+| `is_reply` | boolean | Whether the post is a reply. |
+| `language` | string | Language metadata released by the collection source, or `unknown`. |
+| `post_id` | string or null | Post identifier for HWT records (hash value). |
+| `original_id` | string or null | HWT source identifier associated with AIGT records (hash value). |
+| `generation_method` | string or null | AIGT generation strategy. |
+| `llm_model` | string or null | Target LLM selected for generation. |
 
-## 1.2 AIGT Generation
+### Note
+- The public `post_id` and `original_id` values are lowercase SHA-256 hex
+digests of the original identifier for user privacy and anonymity. The `original_id` to `post_id` linkage
+between AIGT and HWT records is preserved.
 
-AIGT is generated **conditioned on the HWT corpus** to reflect realistic authoring patterns on Mastodon while maintaining **semantic consistency** and **stylistic plausibility**. Each generated post is paired with a corresponding HWT source and **inherits instance / language / post-type metadata**, enabling controlled comparisons under both **post-level** and **community-level** settings.
+- The `language` field is collection-source metadata, not a newly inferred
+language label. The raw release contains 97 values including `unknown` and
+source-specific variants; excluding `unknown` and grouping variants such as
+`ja-IM` with `ja` yields the 89 reported language categories used in the
+manuscript. For downstream language-aware analysis, we suggest using a
+language identification model such as FastText instead of directly utilizing the source metadata.
 
-### Models
+## AIGT generation
 
-AIGT is generated using **seven representative LLMs** spanning major model families:
+The generation pipeline uses seven representative LLM families: GPT-4-Turbo,
+GPT-4o-mini, Claude-3.5-Sonnet, Claude-Sonnet-4, Gemini-2.0-Flash,
+Qwen-2.5-32B-Instruct, and LLaMA3-8B-Instruct. The recorded strategies are
+`polish`, `complete`, and `3-iteration paraphrase`.
 
-- GPT-4-Turbo  
-- GPT-4o-mini  
-- Claude-3.5-Sonnet  
-- Claude-Sonnet-4  
-- Gemini-2.0-Flash  
-- Qwen-2.5-32B  
-- LLaMA3-8B-Instruct  
+## Instance metadata
 
-### Generation Strategies (`generation_method`)
+The `instance_metadata/instance_metadata_*.jsonl` files contain one JSON
+object per line with crawl results for Mastodon instances. These files provide
+community context and are separate from the post JSONL shards.
 
-We employ **three strategies** widely adopted in prior AIGT generation studies:
+`instance_metadata/metadata_errors.csv` records crawl failures. Because
+ActivityPub instances can freely connect or disconnect, an unavailable
+instance may become reachable on a later crawl; retries must follow applicable
+platform policies.
 
-- **`polish`**  
-  Refines an existing human-written post to improve fluency and coherence **while preserving meaning**, reflecting common post-editing behavior.
+## Instance-level statistics and distribution
 
-- **`complete`**  
-  Prompts the model to **naturally continue** a partially written post, simulating interactive writing where users rely on LLMs to finish incomplete thoughts.
-
-- **`3-iteration paraphrase`**  
-  Rewrites a post repeatedly over multiple iterations while maintaining **semantic equivalence**, improving stylistic diversity and reducing surface-level artifacts.
-
-
-# 2 Mastodon Instance-level data
-
-`instance_metadata_*.json` contains the results of crawling **instance-level information** for 263 Mastodon instances, based on the official Mastodon API documentation:
-
-- https://docs.joinmastodon.org/methods/instance/
-
-You will find:
-- `instance_metadata_*.json`: successful crawl results (one record per instance)
-- `metadata_errors.csv`: failure log (which instance/endpoint failed and why)
-
----
-
-## 2.1 Data Sources (API Endpoints)
-
-The dataset is built from these Mastodon endpoints:
-
-### Server info
-- **View server information (v2)**  
-  `GET /api/v2/instance`  
-  General server information (preferred).
-
-- **View server information (v1, deprecated)**  
-  `GET /api/v1/instance`  
-  Used only as a fallback when v2 is unavailable.
-
-### Federation & activity
-- **List of connected domains (peers)**  
-  `GET /api/v1/instance/peers`  
-  Domains the server is aware of.
-
-- **Weekly activity (last ~3 months, weekly bins)**  
-  `GET /api/v1/instance/activity`  
-  Weekly activity metrics.
-
-### Policies & rules
-- **List of rules**  
-  `GET /api/v1/instance/rules`
-
-- **Extended description**  
-  `GET /api/v1/instance/extended_description`
-
-- **Privacy policy**  
-  `GET /api/v1/instance/privacy_policy`
-
-- **Terms of service**  
-  `GET /api/v1/instance/terms_of_service`
-
-### Translation
-- **Translation languages**  
-  `GET /api/v1/instance/translation_languages`  
-  Language pairs supported by the server’s configured translation engine.
-
----
-
-## 2.2 Files
-
-###  `instance_metadata_*.json`
-
-**Purpose**: The main crawl output. Contains one JSON object per instance with the data collected from the endpoints above.
-
-**Format**: JSON array  
-- Each element corresponds to one instance (domain).
-
-#### Top-level keys per instance record
-
-| Key | Type | Meaning |
-|---|---|---|
-| `instance` | string | The instance domain you crawled (target host). |
-| `information` | object | General information about the server. |
-| `connected_domains` | array[string] | Domains that this server is aware of. |
-| `weekly_activity` | array[object] | Server activity over the last 3 months, binned weekly.|
-| `list_rules` | array[object] | Rules that the users of this service should follow. |
-| `moderated_servers` | array[object] | Obtain a list of domains that have been blocked. |
-| `extended_description` | object | Extended description of this server. |
-| `privacy_policy` | object | Privacy policy content. |
-| `terms_of_service` | object | The contents of this server’s terms of service, if configured. |
-| `translation_languages` | object | The contents of this server’s terms of service, for a specified date, if configured. |
-
-#### Notes on specific fields
-
-- **`information`**
-  - This is the *raw server info response* (v2 or v1). Fields can differ depending on server version.
-  - If your crawler stored metadata like which endpoint was used (e.g., `api_used`), you can rely on it during normalization.
-
-- **`weekly_activity`**
-  - Usually contains weekly bins for approximately the last 3 months.
-  - Common fields include: `week`, `statuses`, `logins`, `registrations` (exact shape depends on server version).
-
-- **HTML content**
-  - `privacy_policy` and `extended_description` commonly include HTML strings (e.g., `content`). Clean/strip HTML before NLP/search indexing.
-
-- **Nullable fields**
-  - Some instances do not provide `terms_of_service`, moderation data, or optional sub-fields. Always handle `null` safely.
-
----
-
-###  `metadata_errors.csv`
-
-**Purpose**: Crawl failure log for debugging and retries.
-
-**Columns**
-- `Instance`: instance domain
-- `API_Endpoint`: endpoint path that failed (e.g., `/api/v2/instance`, `/api/v1/instance/peers`)
-- `Error_Reason`: error message or reason (timeout, DNS, TLS, HTTP error, parse error, etc.)
-
-**Notes**
-- The same instance may appear multiple times if different endpoints failed or retries were recorded.
-
-
-## 2.3 Instance-level statistics and distribution
-
-Top-30 Instances Statistics:
+### Top-10 Instances Statistics
 
 | Instance | Posts | HWT | AIGT | HWT % | AIGT % |
 |---|---:|---:|---:|---:|---:|
 | mastodon.social | 198,827 | 109,075 | 89,752 | 54.86 | 45.14 |
-| pawoo.net | 153,632 | 77,763 | 75,869 | 50.62 | 49.38 |
-| mstdn.maud.io | 55,916 | 28,305 | 27,611 | 50.62 | 49.38 |
+| pawoo.net | 153,665 | 77,780 | 75,885 | 50.62 | 49.38 |
+| mstdn.maud.io | 55,918 | 28,306 | 27,612 | 50.62 | 49.38 |
 | chaosphere.hostdon.jp | 48,292 | 24,172 | 24,120 | 50.05 | 49.95 |
 | imastodon.net | 44,370 | 22,305 | 22,065 | 50.27 | 49.73 |
 | mamot.fr | 38,991 | 20,513 | 18,478 | 52.61 | 47.39 |
 | rewa.mobi | 29,088 | 15,774 | 13,314 | 54.23 | 45.77 |
 | eletusk.club | 24,218 | 12,223 | 11,995 | 50.47 | 49.53 |
 | mstdn.guru | 23,338 | 11,725 | 11,613 | 50.24 | 49.76 |
-| pokemon.mastportal.info | 16,083 | 8,159 | 7,924 | 50.73 | 49.27 |
-| vocalodon.net | 16,005 | 8,054 | 7,951 | 50.32 | 49.68 |
-| framapiaf.org | 15,601 | 8,505 | 7,096 | 54.52 | 45.48 |
-| chaos.social | 14,726 | 7,939 | 6,787 | 53.91 | 46.09 |
-| handon.club | 14,234 | 7,288 | 6,946 | 51.20 | 48.80 |
-| unnerv.jp | 11,757 | 5,884 | 5,873 | 50.05 | 49.95 |
-| mental.social | 11,634 | 5,859 | 5,775 | 50.36 | 49.64 |
-| social.mikutter.hachune.net | 10,317 | 5,182 | 5,135 | 50.23 | 49.77 |
-| mastodon.art | 9,952 | 5,397 | 4,555 | 54.23 | 45.77 |
-| mstdn.nere9.help | 9,269 | 4,667 | 4,602 | 50.35 | 49.65 |
-| schleuss.online | 7,721 | 3,870 | 3,851 | 50.12 | 49.88 |
-| elekk.xyz | 7,425 | 3,884 | 3,541 | 52.31 | 47.69 |
-| mastodon.bida.im | 7,247 | 3,980 | 3,267 | 54.92 | 45.08 |
-| ffxiv-mastodon.com | 7,067 | 3,544 | 3,523 | 50.15 | 49.85 |
-| kancolle.social | 6,076 | 3,072 | 3,004 | 50.56 | 49.44 |
-| baraag.net | 5,843 | 3,203 | 2,640 | 54.82 | 45.18 |
-| odakyu.app | 5,798 | 2,935 | 2,863 | 50.62 | 49.38 |
-| friends.cafe | 5,727 | 2,892 | 2,835 | 50.50 | 49.50 |
-| ichiji.social | 5,685 | 2,870 | 2,815 | 50.48 | 49.52 |
-| jorts.horse | 5,075 | 2,837 | 2,238 | 55.90 | 44.10 |
-| gingadon.com | 4,920 | 2,478 | 2,442 | 50.37 | 49.63 |
-| mastodon.sk | 4,654 | 2,370 | 2,284 | 50.92 | 49.08 |
-
+| pokemon.mastportal.info | 16,085 | 8,160 | 7,925 | 50.73 | 49.27 |
 
 ### Post-volume distribution across instances
 
 ![Post-volume distribution across instances](post_volume_distribution.png)
 
 *Figure: Distribution of post volumes across Mastodon instances. The x-axis is shown on a logarithmic scale.*
+
+### Example
+
+The examples below illustrate how community context and paired HWT/AIGT text
+appear across representative instances. Ellipses indicate shortened examples.
+
+| Instance | Description and community context | HWT examples | AIGT examples |
+|---|---|---|---|
+| **mastodon.social**<br>109,075 posts | The original server operated by the Mastodon gGmbH non-profit.<br><br>*Rules: No misinformation, no harassment, no violence incitement...* | Annabel found some Halloween-ready lighting.<br><br>I've also applied to put up a shop on Designed by Humans, since I think...<br><br>okay it's food truck o'clock I guess... | Yo, peep the Halloween swag Annabel just found!<br><br>I've also applied to open a shop on Designed by Humans. Their shipping rates...<br><br>so I better eat something quick before the show starts... |
+| **pawoo.net**<br>77,780 posts | Pawoo, a Mastodon instance operated by The Social Coop Limited...<br><br>*Rules: No rules.* | i could listen to the 100 poets i replay for days<br><br>[Update] IconTweak 1.0.1 - Show App Versions in Menu<br><br>RT: Oh, I just love #Japan! #Tokyo #subway | I could listen to those 100 poets over and over again, replaying for days!<br><br>[Update] IconTweak 1.0.1 is here! Now you can see app versions directly in the menu. Super handy, right?<br><br>RT: Oh, I just love #Japan! The culture, the food, and the scenery... |
+| **mstdn.maud.io**<br>28,306 posts | The place to express you more freely.<br><br>*Rules: Comply with law, no disruption, check updates regularly...* | The Pirate Bay was recently down for over a week due to a DDoS attack<br><br>What is CMAF? Threat or Opportunity?<br><br>GitHub - neuecc/Utf8Json: Definitely Fastest and Zero Allocation JSON Serializer... | The Pirate Bay was offline for more than a week recently because of a DDoS attack.<br><br>Is CMAF a chance or a risk?<br><br>Definitely a game-changer if you're looking for performance. The speed is unreal, and zero allocations mean... |
+| **mastodon.art**<br>5,397 posts | Your friendly home on the Fediverse for all things creative.<br><br>*Rules: No AI or NFTs, credit + commentary required, respect user boundaries...* | Once upon a time I started this. I think I'll continue it, now. #MastoArt<br><br>Compliment my costume and I'll give you more candy<br><br>second october patreon reward teaser #digitalart... | Been sitting on this project for a while now...<br><br>Compliment my costume, and I'll give you some extra candy!<br><br>second october patreon reward teaser #digitalsketch... |
