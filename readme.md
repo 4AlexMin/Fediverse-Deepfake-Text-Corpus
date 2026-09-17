@@ -13,7 +13,7 @@ The corpus is provided as nine standalone JSON Lines shards:
 | --- | ---: |
 | `corpus/corpus_01.jsonl` through `corpus/corpus_09.jsonl` | 1,003,993 |
 
-Each line represents one post object. Each shard is below 45,000,000 bytes and
+Each line represents one post object. Each shard is below 45 MB and
 ends at a JSONL record boundary. The corpus contains 523,048 HWT records and
 480,945 AIGT records across 263 Mastodon communities.
 
