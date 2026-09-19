@@ -5,6 +5,10 @@ corpus contains human-written text (HWT, label `0`) collected from pre-LLM
 Fediverse snapshots and AI-generated text (AIGT, label `1`) generated based on
 that HWT corpus.
 
+## Data Collection
+
+Data collection was conducted from approximately October 29, 2025, 14:00 AoE to October 30, 2025, 09:00 AoE. The collection utilized five servers located in Wisconsin, United States. Each server was equipped with two Intel® Xeon® Silver 4114 CPUs (20 cores / 40 threads in total), 188 GB of RAM, and a 1 TB HDD, and ran Ubuntu 20.04.6 LTS.
+
 ## Corpus files
 
 The corpus is provided as nine standalone JSON Lines shards:
@@ -16,6 +20,7 @@ The corpus is provided as nine standalone JSON Lines shards:
 Each line represents one post object. Each shard is below 45 MB and
 ends at a JSONL record boundary. The corpus contains 523,048 HWT records and
 480,945 AIGT records across 263 Mastodon communities.
+
 
 ## Record schema
 
@@ -97,3 +102,30 @@ appear across representative instances. Ellipses indicate shortened examples.
 | **pawoo.net**<br>77,780 posts | Pawoo, a Mastodon instance operated by The Social Coop Limited...<br><br>*Rules: No rules.* | i could listen to the 100 poets i replay for days<br><br>[Update] IconTweak 1.0.1 - Show App Versions in Menu<br><br>RT: Oh, I just love #Japan! #Tokyo #subway | I could listen to those 100 poets over and over again, replaying for days!<br><br>[Update] IconTweak 1.0.1 is here! Now you can see app versions directly in the menu. Super handy, right?<br><br>RT: Oh, I just love #Japan! The culture, the food, and the scenery... |
 | **mstdn.maud.io**<br>28,306 posts | The place to express you more freely.<br><br>*Rules: Comply with law, no disruption, check updates regularly...* | The Pirate Bay was recently down for over a week due to a DDoS attack<br><br>What is CMAF? Threat or Opportunity?<br><br>GitHub - neuecc/Utf8Json: Definitely Fastest and Zero Allocation JSON Serializer... | The Pirate Bay was offline for more than a week recently because of a DDoS attack.<br><br>Is CMAF a chance or a risk?<br><br>Definitely a game-changer if you're looking for performance. The speed is unreal, and zero allocations mean... |
 | **mastodon.art**<br>5,397 posts | Your friendly home on the Fediverse for all things creative.<br><br>*Rules: No AI or NFTs, credit + commentary required, respect user boundaries...* | Once upon a time I started this. I think I'll continue it, now. #MastoArt<br><br>Compliment my costume and I'll give you more candy<br><br>second october patreon reward teaser #digitalart... | Been sitting on this project for a while now...<br><br>Compliment my costume, and I'll give you some extra candy!<br><br>second october patreon reward teaser #digitalsketch... |
+
+
+## Verification
+
+The release includes a standalone, standard-library-only verification script
+that recomputes the corpus claims from the public files. From the repository
+root, run:
+
+```bash
+python scripts/verify_statistics.py
+```
+
+The same command also works from inside `scripts/` as `python
+verify_statistics.py`. Expected values are recorded in
+`expected/corpus_statistics.txt`, which contains the manuscript-oriented
+claims checked by the script. The environment is specified by
+`requirements.txt` and `environment.yml`; no third-party Python packages are
+required.
+
+
+# Ethics Considerations
+
+Because this study involves the large-scale collection, analysis, and release of publicly available social-media data, we considered potential privacy and research-ethics risks throughout the study. The human-written Fediverse data used in this study were collected using the open-source FediLive framework. The collection accessed only publicly shared content, respected platform rate limits and the Robots Exclusion Protocol (`robots.txt`), and did not access private, restricted, or otherwise non-public content.
+
+Privacy risks were further minimized in the subsequent use and release of the data. Our analyses operate at the corpus and community levels rather than at the level of individual users: FediAID uses aggregate community-level representations instead of individualized retrieval, user histories, or user-level profiling. Consistent with this design, the released corpus excludes user-level information and account identifiers, and focuses on textual content together with community-level labels and metadata. Because the corpus retains publicly posted text, some posts may nevertheless be traceable to their original public sources through text search; we therefore do not claim that the released text is fully anonymous, but avoid providing user-level identifiers or mappings that facilitate such linkage.
+
+The protocol governing the collection, research use, and release of the publicly available Fediverse data underwent institutional ethics review by our institution's Institutional Review Board (IRB). In consultation with institutional ethics staff, the study was considered as involving “no more than minimal risk” and received approval prior to data collection.

@@ -1,0 +1,19 @@
+# Expected public corpus statistics for scripts/verify_statistics.py
+# Counts are derived from the released corpus, not from private source files.
+total_records=1003993
+hwt_records=523048
+aigt_records=480945
+community_count=263
+reported_language_count=89
+
+[top_languages]
+01=ja|94605|93346|187951
+02=en|88344|64566|152910
+03=fr|15335|10901|26236
+04=es|10767|7672|18439
+05=de|6661|4671|11332
+06=zh|1746|1668|3414
+07=it|1563|1003|2566
+08=pt|858|675|1533
+09=fa|583|578|1161
+10=ru|276|273|549

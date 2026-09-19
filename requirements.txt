@@ -1,0 +1,2 @@
+# No third-party runtime dependencies.
+# scripts/verify_statistics.py uses only the Python standard library.
