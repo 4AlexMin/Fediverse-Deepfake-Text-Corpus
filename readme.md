@@ -7,7 +7,9 @@ that HWT corpus.
 
 ## Data Collection
 
-Data collection was conducted from approximately October 29, 2025, 14:00 AoE to October 30, 2025, 09:00 AoE. The collection utilized five servers located in Wisconsin, United States. Each server was equipped with two Intel® Xeon® Silver 4114 CPUs (20 cores / 40 threads in total), 188 GB of RAM, and a 1 TB HDD, and ran Ubuntu 20.04.6 LTS.
+The retrieval run was conducted from approximately October 29, 2025, 14:00 AoE to October 30, 2025, 09:00 AoE using five servers located in Wisconsin, United States. Each server was equipped with two Intel® Xeon® Silver 4114 CPUs (20 cores / 40 threads in total), 188 GB of RAM, and a 1 TB HDD, and ran Ubuntu 20.04.6 LTS. These dates describe when the snapshots were retrieved, not when the source posts were created.
+
+To collect historical HWT posts, we manually identified publicly available Mastodon statuses from around November 1 of 2017, 2018, and 2019 and used their status IDs as cursor anchors (`max_id`) for FediLive's public-timeline collection. The anchors were used to initialize backward pagination near the end of each target period; the resulting snapshots cover the corresponding October 18–November 1 windows.
 
 ## Corpus files
 
@@ -44,11 +46,15 @@ digests of the original identifier for user privacy and anonymity. The `original
 between AIGT and HWT records is preserved.
 
 - The `language` field is collection-source metadata, not a newly inferred
-language label. The raw release contains 97 values including `unknown` and
-source-specific variants; excluding `unknown` and grouping variants such as
-`ja-IM` with `ja` yields the 89 reported language categories used in the
-manuscript. For downstream language-aware analysis, we suggest using a
+language label. The release has 97 raw values, including `unknown` and
+source-specific variants. `unknown` occurs in 591,963 records (58.96%). After
+excluding `unknown` and normalizing documented variants such as `ja-IM` to
+`ja`, there are 89 language categories. For downstream language-aware analysis, we suggest using a
 language identification model such as FastText instead of directly utilizing the source metadata.
+
+- The shards preserve records without text deduplication. Across exact `text`
+values, 9,140 distinct strings occur more than once; together, these repeats
+account for 19,187 rows beyond the first occurrence of each string.
 
 ## AIGT generation
 
@@ -56,6 +62,22 @@ The generation pipeline uses seven representative LLM families: GPT-4-Turbo,
 GPT-4o-mini, Claude-3.5-Sonnet, Claude-Sonnet-4, Gemini-2.0-Flash,
 Qwen-2.5-32B-Instruct, and LLaMA3-8B-Instruct. The recorded strategies are
 `polish`, `complete`, and `3-iteration paraphrase`.
+
+### Research Note
+
+#### Exact-copy generated text
+
+There are 295 AIGT records whose text exactly matches their linked HWT source: 213 from `3-iteration paraphrase`, 79 from `polish`, and 3 from `complete`. In addition, 288 exact text strings occur under both labels, collectively covering 1,003 rows.
+
+Although these records account for only 0.061% of all AIGT records, we recommend excluding such cross-label duplicate groups or handling them carefully in downstream analyses.
+
+#### Pair-aware splits
+
+The corpus release does not include a train/test split. To reduce leakage in a
+custom split, keep records in the same group when they share an HWT source
+(`post_id`/`original_id`) or an exact `text` value, then assign whole groups to
+partitions. This keeps linked generations and identical strings together.
+Record the split seed and grouping policy when publishing results.
 
 ## Instance metadata
 
