@@ -77,7 +77,7 @@ generation-provenance labels.
 
 More broadly, 288 distinct text strings occur under both labels, covering
 1,003 records. These conflicting labels cannot be distinguished from text
-alone. For text-only detection experiments, we recommend excluding all records
+alone. For downstream usage, we recommend excluding all records
 with these cross-label text values; the partitioning script does so by default.
 
 #### Pair-aware splits
