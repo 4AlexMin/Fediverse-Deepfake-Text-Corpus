@@ -79,6 +79,38 @@ custom split, keep records in the same group when they share an HWT source
 partitions. This keeps linked generations and identical strings together.
 Record the split seed and grouping policy when publishing results.
 
+Below, we provide an example partitioning.
+
+## Suggested Partitioning
+
+Run `scripts/create_splits.py` from the corpus repository root to create splits
+from the nine shards. Linked HWT/AIGT records and rows with identical text stay
+in the same partition. Exact text found under both labels is excluded by
+default; pass `--keep-cross-label-exact-text` to retain those rows.
+
+Create train/validation files with a 20% validation fraction:
+
+```bash
+python scripts/create_splits.py \
+  --output-dir splits \
+  --validation-fraction 0.2 \
+  --seed 42
+```
+
+Create train/validation/test files with 10% validation and 10% test fractions:
+
+```bash
+python scripts/create_splits.py \
+  --output-dir splits \
+  --validation-fraction 0.1 \
+  --test-fraction 0.1 \
+  --seed 42
+```
+
+The output contains `train.jsonl`, `validation.jsonl`, optional `test.jsonl`,
+and `split_manifest.json`. Source shards are unchanged. The script uses only
+the Python standard library; no additional packages are required.
+
 ## Instance metadata
 
 The `instance_metadata/instance_metadata_*.jsonl` files contain one JSON
