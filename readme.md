@@ -67,9 +67,18 @@ Qwen-2.5-32B-Instruct, and LLaMA3-8B-Instruct. The recorded strategies are
 
 #### Exact-copy generated text
 
-There are 295 AIGT records whose text exactly matches their linked HWT source: 213 from `3-iteration paraphrase`, 79 from `polish`, and 3 from `complete`. In addition, 288 exact text strings occur under both labels, collectively covering 1,003 rows.
+There are 295 AIGT records whose text exactly matches their linked HWT source:
+213 from `3-iteration paraphrase`, 79 from `polish`, and 3 from `complete`.
+These 295 records represent 0.061% of the 480,945 AIGT records. Labels reflect
+record provenance: `0` identifies collected HWT, while `1` identifies
+generation-pipeline outputs, including outputs that preserve the source text
+unchanged. These outputs are retained in the archival corpus with their
+generation-provenance labels.
 
-Although these records account for only 0.061% of all AIGT records, we recommend excluding such cross-label duplicate groups or handling them carefully in downstream analyses.
+More broadly, 288 distinct text strings occur under both labels, covering
+1,003 records. These conflicting labels cannot be distinguished from text
+alone. For text-only detection experiments, we recommend excluding all records
+with these cross-label text values; the partitioning script does so by default.
 
 #### Pair-aware splits
 
@@ -110,6 +119,15 @@ python scripts/create_splits.py \
 The output contains `train.jsonl`, `validation.jsonl`, optional `test.jsonl`,
 and `split_manifest.json`. Source shards are unchanged. The script uses only
 the Python standard library; no additional packages are required.
+
+Requested split fractions are approximate because linked records and identical
+text remain grouped. The manifest records the actual record and label counts
+for each partition.
+
+Use a separate output directory for each split configuration. Existing split
+outputs are rejected by default; pass `--overwrite` to replace them. When no
+test partition is requested, `--overwrite` also removes any previous
+`test.jsonl`. Other files in the output directory are left unchanged.
 
 ## Instance metadata
 

@@ -1,6 +1,5 @@
 # Generated train/validation/test partitions
 /splits/
-/tests/
 
 # Python bytecode
 __pycache__/

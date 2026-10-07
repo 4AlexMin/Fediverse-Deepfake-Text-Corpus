@@ -259,7 +259,9 @@ def create_splits(
     manifest["input_shards"] = input_shards
     manifest["text_statistics"] = text_statistics
 
-    output_names = [f"{split}.jsonl" for split in indices_by_split] + ["split_manifest.json"]
+    # Include inactive splits so a previous test partition cannot survive a
+    # train/validation-only run and overlap the new partitions.
+    output_names = [f"{split}.jsonl" for split in SPLIT_NAMES] + ["split_manifest.json"]
     existing = [output_dir / name for name in output_names if (output_dir / name).exists()]
     if existing and not overwrite:
         raise FileExistsError(
@@ -267,6 +269,13 @@ def create_splits(
             + "\n".join(str(path) for path in existing)
         )
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if overwrite:
+        for split in SPLIT_NAMES:
+            if split not in indices_by_split:
+                stale_path = output_dir / f"{split}.jsonl"
+                if stale_path.exists():
+                    stale_path.unlink()
 
     for split, indices in indices_by_split.items():
         path = output_dir / f"{split}.jsonl"
