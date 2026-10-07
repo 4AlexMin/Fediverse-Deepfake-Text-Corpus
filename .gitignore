@@ -1,6 +1,9 @@
 # Generated train/validation/test partitions
 /splits/
 
+# Local regression tests
+/tests/
+
 # Python bytecode
 __pycache__/
 *.py[cod]
